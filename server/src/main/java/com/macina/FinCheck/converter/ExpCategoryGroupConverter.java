@@ -3,11 +3,12 @@ package com.macina.FinCheck.converter;
 import com.fasterxml.jackson.databind.util.StdConverter;
 import com.macina.FinCheck.model.models.ExpCategoryGroup;
 
-public class ExpCategoryGroupConverter extends StdConverter<Integer, ExpCategoryGroup> {
+
+public class ExpCategoryGroupConverter extends StdConverter<Long, ExpCategoryGroup> {
     @Override
-    public ExpCategoryGroup convert(Integer id) {
-        ExpCategoryGroup group = new ExpCategoryGroup();
-        group.setId(id);
-        return group;
+    public ExpCategoryGroup convert(Long id) {
+        ExpCategoryGroup e = new ExpCategoryGroup();
+        e.setId(id);
+        return e;
     }
 }

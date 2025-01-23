@@ -39,6 +39,9 @@ public class Expense implements GenericEntity<Expense> {
     @JsonDeserialize(converter = ExpCategoryGroupConverter.class)
     private ExpCategoryGroup expCategoryGroup;
 
+    @ManyToOne(optional = false)
+    private MoneyAccount moneyAccount;
+
     public Expense(String name, Double quantity, LocalDate date, ExpCategoryGroup expCategoryGroup) {
         this.name = name;
         this.quantity = quantity;
