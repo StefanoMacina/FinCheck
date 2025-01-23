@@ -1,6 +1,8 @@
-package com.macina.FinCheck.model;
+package com.macina.FinCheck.model.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.macina.FinCheck.converter.ExpCategoryGroupConverter;
+import com.macina.FinCheck.model.GenericEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -14,6 +16,8 @@ import java.time.LocalDate;
 @Getter
 @Entity
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Expense implements GenericEntity<Expense> {
 
     @Id
@@ -31,25 +35,14 @@ public class Expense implements GenericEntity<Expense> {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 
-    @ManyToOne(optional = true)
-    private ExpenseMacroCategory expMacroCategory;
+    @ManyToOne(optional = false)
+    @JsonDeserialize(converter = ExpCategoryGroupConverter.class)
+    private ExpCategoryGroup expCategoryGroup;
 
-    public Expense(String name, Double quantity, LocalDate date, ExpenseMacroCategory expMacroCategory) {
+    public Expense(String name, Double quantity, LocalDate date, ExpCategoryGroup expCategoryGroup) {
         this.name = name;
         this.quantity = quantity;
         this.date = date;
-        this.expMacroCategory = expMacroCategory;
+        this.expCategoryGroup = expCategoryGroup;
     }
-
-    public Expense(Long id, String name, Double quantity, LocalDate date, ExpenseMacroCategory expMacroCategory) {
-        this.id = id;
-        this.name = name;
-        this.quantity = quantity;
-        this.date = date;
-        this.expMacroCategory = expMacroCategory;
-    }
-
-    public Expense() {
-    }
-
 }

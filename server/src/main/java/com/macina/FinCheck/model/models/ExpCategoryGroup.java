@@ -1,5 +1,7 @@
-package com.macina.FinCheck.model;
+package com.macina.FinCheck.model.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.macina.FinCheck.model.GenericEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -14,21 +16,18 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Builder
-public class ExpenseMacroCategory {
+public class ExpCategoryGroup implements GenericEntity<ExpCategoryGroup> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(nullable = false)
-    @Size(min = 4, max = 20)
+    @Size(min = 4, max = 55)
     private String name;
 
-    @OneToMany(mappedBy = "expMacroCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Expense> expenseList = new ArrayList<>();
-
-    public ExpenseMacroCategory(String name, List<Expense> expenseList) {
+    public ExpCategoryGroup(String name) {
         this.name = name;
-        this.expenseList = expenseList;
     }
 }
+

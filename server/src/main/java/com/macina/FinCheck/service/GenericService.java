@@ -6,9 +6,6 @@ import com.macina.FinCheck.enums.MESSAGE_ENUM;
 import com.macina.FinCheck.model.GenericEntity;
 import com.macina.FinCheck.payload.ResponseData;
 import com.macina.FinCheck.repository.GenericRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.*;
 
 public abstract class GenericService<T extends GenericEntity<T>> {
