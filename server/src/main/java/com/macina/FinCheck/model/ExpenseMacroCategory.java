@@ -24,6 +24,11 @@ public class ExpenseMacroCategory {
     @Size(min = 4, max = 20)
     private String name;
 
-    @OneToMany(mappedBy = "expenseCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "expMacroCategory", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Expense> expenseList = new ArrayList<>();
+
+    public ExpenseMacroCategory(String name, List<Expense> expenseList) {
+        this.name = name;
+        this.expenseList = expenseList;
+    }
 }

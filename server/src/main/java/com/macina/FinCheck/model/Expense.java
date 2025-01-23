@@ -4,13 +4,14 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+
+@Setter
+@Getter
 @Entity
 @Builder
 public class Expense {
@@ -27,11 +28,28 @@ public class Expense {
     private Double quantity;
 
     @Column(nullable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate date;
 
-    @ManyToOne
-    private ExpenseCategory expenseCategory;
+    @ManyToOne(optional = true)
+    private ExpenseMacroCategory expMacroCategory;
 
+    public Expense(String name, Double quantity, LocalDate date, ExpenseMacroCategory expMacroCategory) {
+        this.name = name;
+        this.quantity = quantity;
+        this.date = date;
+        this.expMacroCategory = expMacroCategory;
+    }
+
+    public Expense(Integer id, String name, Double quantity, LocalDate date, ExpenseMacroCategory expMacroCategory) {
+        this.id = id;
+        this.name = name;
+        this.quantity = quantity;
+        this.date = date;
+        this.expMacroCategory = expMacroCategory;
+    }
+
+    public Expense() {
+    }
 
 }

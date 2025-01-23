@@ -1,18 +1,19 @@
 package com.macina.FinCheck.service.impl;
 
 import com.macina.FinCheck.model.Expense;
+import com.macina.FinCheck.payload.ResponseData;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+import java.util.Objects;
 
 public interface IExpenseService {
 
-    Expense save(Expense expense);
+    ResponseData<Map<String,Expense>> save(Expense expense);
+    ResponseData<Map<String,Expense>> findById(Integer id);
 
-    Optional<Expense> findById(Integer id);
+    ResponseData<Map<String,List<Expense>>> findAll();
 
-    List<Expense> findAll();
-
-    void delete(@RequestBody List<Integer> ids);
+    ResponseData<Map<String, Object>> delete(@RequestBody List<Integer> ids);
 }
