@@ -14,11 +14,11 @@ import java.time.LocalDate;
 @Getter
 @Entity
 @Builder
-public class Expense {
+public class Expense implements GenericEntity<Expense> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false)
     @Size(min = 3, max = 50)
@@ -41,7 +41,7 @@ public class Expense {
         this.expMacroCategory = expMacroCategory;
     }
 
-    public Expense(Integer id, String name, Double quantity, LocalDate date, ExpenseMacroCategory expMacroCategory) {
+    public Expense(Long id, String name, Double quantity, LocalDate date, ExpenseMacroCategory expMacroCategory) {
         this.id = id;
         this.name = name;
         this.quantity = quantity;

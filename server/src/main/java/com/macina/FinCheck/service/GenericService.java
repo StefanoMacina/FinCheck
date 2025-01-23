@@ -3,51 +3,49 @@ package com.macina.FinCheck.service;
 import com.macina.FinCheck.enums.ERROR_ENUM;
 import com.macina.FinCheck.enums.GENERIC_ENUM;
 import com.macina.FinCheck.enums.MESSAGE_ENUM;
-import com.macina.FinCheck.model.Expense;
+import com.macina.FinCheck.model.GenericEntity;
 import com.macina.FinCheck.payload.ResponseData;
-import com.macina.FinCheck.repository.ExpenseRepository;
-import com.macina.FinCheck.service.impl.IExpenseService;
-import jakarta.transaction.Transactional;
+import com.macina.FinCheck.repository.GenericRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 
-@Service
-@Transactional
-public class ExpenseService implements IExpenseService {
+public abstract class GenericService<T extends GenericEntity<T>> {
 
-    @Autowired
-    ExpenseRepository expenseRepository;
+    private final GenericRepository<T> repository;
 
-    @Override
-    public ResponseData<Map<String,Expense>> save(Expense expense) {
-        Map<String, Expense> m = new HashMap<>();
+    protected GenericService(GenericRepository<T> repository) {
+        this.repository = repository;
+    }
+
+    public ResponseData<Map<String, T>> save(T entity) {
+        Map<String, T> m = new HashMap<>();
         String msg = MESSAGE_ENUM.SUCCESS.getMsg();;
         Integer error = ERROR_ENUM.SUCCESS.getCode();
 
         try{
-            Expense savedExpense = expenseRepository.save(expense);
-            m.put(GENERIC_ENUM.expenseField.getMsg(),savedExpense);
+            T savedEntity = repository.save(entity);
+            m.put(GENERIC_ENUM.expenseField.getMsg(),savedEntity);
 
         }catch (Exception e){
             msg = MESSAGE_ENUM.SERVER_ERROR.getMsg();
             error = ERROR_ENUM.SERVER_ERROR.getCode();
         }
-        return ResponseData.<Map<String,Expense>>builder()
+        return ResponseData.<Map<String,T>>builder()
                 .data(m)
                 .msg(msg)
                 .code(error)
                 .build();
     }
 
-    @Override
-    public ResponseData<Map<String,Expense>> findById(Integer id) {
-        Map<String, Expense> m = new HashMap<>();
+    public ResponseData<Map<String,T>> findById(Long id) {
+        Map<String, T> m = new HashMap<>();
         String msg = MESSAGE_ENUM.SUCCESS.getMsg();;
         Integer error = ERROR_ENUM.SUCCESS.getCode();
 
         try{
-            Optional<Expense> s = expenseRepository.findById(id);
+            Optional<T> s = repository.findById(id);
             if(s.isPresent()){
                 m.put(GENERIC_ENUM.expenseField.getMsg(), s.get());
             } else {
@@ -58,21 +56,20 @@ public class ExpenseService implements IExpenseService {
             msg = MESSAGE_ENUM.SERVER_ERROR.getMsg();
             error = ERROR_ENUM.SERVER_ERROR.getCode();
         }
-        return ResponseData.<Map<String,Expense>>builder()
+        return ResponseData.<Map<String,T>>builder()
                 .data(m)
                 .msg(msg)
                 .code(error)
                 .build();
     }
 
-    @Override
-    public ResponseData<Map<String,List<Expense>>> findAll() {
-        Map<String, List<Expense>> m = new HashMap<>();
+    public ResponseData<Map<String, List<T>>> findAll() {
+        Map<String, List<T>> m = new HashMap<>();
         String msg = MESSAGE_ENUM.SUCCESS.getMsg();;
         Integer error = ERROR_ENUM.SUCCESS.getCode();
 
         try{
-            List<Expense> l = expenseRepository.findAll();
+            List<T> l = repository.findAll();
             if(l.isEmpty()){
                 msg = MESSAGE_ENUM.EMPTY_SET.getMsg();
                 error = ERROR_ENUM.EMPTY_SET.getCode();
@@ -82,15 +79,14 @@ public class ExpenseService implements IExpenseService {
         }catch (Exception e){
             msg = MESSAGE_ENUM.SERVER_ERROR.getMsg();
         }
-        return ResponseData.<Map<String,List<Expense>>>builder()
+        return ResponseData.<Map<String,List<T>>>builder()
                 .data(m)
                 .msg(msg)
                 .code(error)
                 .build();
     }
 
-    @Override
-    public ResponseData<Map<String, Object>> delete(List<Integer> ids) {
+    public ResponseData<Map<String, Object>> delete(List<Long> ids) {
         if (ids == null || ids.isEmpty()) {
             return ResponseData.<Map<String, Object>>builder()
                     .code(0)
@@ -102,9 +98,9 @@ public class ExpenseService implements IExpenseService {
         int totalDeleted = 0;
         List<Map<String, Object>> failedDetails = new ArrayList<>();
 
-        for (Integer id : ids) {
+        for (Long id : ids) {
             try {
-                if (!expenseRepository.existsById(id)) {
+                if (!repository.existsById(id)) {
                     failedDetails.add(Map.of(
                             "id", id,
                             "error", ERROR_ENUM.NOT_FOUND
@@ -112,7 +108,7 @@ public class ExpenseService implements IExpenseService {
                     continue;
                 }
 
-                expenseRepository.deleteById(id);
+                repository.deleteById(id);
                 totalDeleted++;
             } catch (Exception e) {
                 failedDetails.add(Map.of(
@@ -133,4 +129,5 @@ public class ExpenseService implements IExpenseService {
                 .msg(totalDeleted + " items deleted successfully")
                 .build();
     }
+
 }
