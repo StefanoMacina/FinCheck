@@ -1,5 +1,7 @@
 package com.macina.FinCheck.model.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.macina.FinCheck.model.GenericEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -26,5 +28,6 @@ public class MoneyAccount implements GenericEntity<MoneyAccount> {
     private Double amount;
 
     @OneToMany(mappedBy = "moneyAccount")
+    @JsonBackReference
     private List<Expense> expenseList = new ArrayList<>();
 }

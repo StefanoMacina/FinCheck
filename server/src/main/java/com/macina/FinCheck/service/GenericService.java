@@ -4,13 +4,15 @@ import com.macina.FinCheck.enums.ERROR_ENUM;
 import com.macina.FinCheck.enums.GENERIC_ENUM;
 import com.macina.FinCheck.enums.MESSAGE_ENUM;
 import com.macina.FinCheck.model.GenericEntity;
+import com.macina.FinCheck.model.models.Expense;
 import com.macina.FinCheck.payload.ResponseData;
 import com.macina.FinCheck.repository.GenericRepository;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class GenericService<T extends GenericEntity<T>> {
 
-    private final GenericRepository<T> repository;
+    protected final GenericRepository<T> repository;
 
     protected GenericService(GenericRepository<T> repository) {
         this.repository = repository;

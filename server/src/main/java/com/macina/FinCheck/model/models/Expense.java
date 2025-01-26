@@ -1,7 +1,10 @@
 package com.macina.FinCheck.model.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.macina.FinCheck.converter.ExpCategoryGroupConverter;
+import com.macina.FinCheck.converter.MoneyAccountConverter;
 import com.macina.FinCheck.model.GenericEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
@@ -40,12 +43,15 @@ public class Expense implements GenericEntity<Expense> {
     private ExpCategoryGroup expCategoryGroup;
 
     @ManyToOne(optional = false)
+    @JsonDeserialize(converter = MoneyAccountConverter.class)
+    @JsonManagedReference
     private MoneyAccount moneyAccount;
 
-    public Expense(String name, Double quantity, LocalDate date, ExpCategoryGroup expCategoryGroup) {
+    public Expense(String name, Double quantity, LocalDate date, ExpCategoryGroup expCategoryGroup, MoneyAccount moneyAccount) {
         this.name = name;
         this.quantity = quantity;
         this.date = date;
         this.expCategoryGroup = expCategoryGroup;
+        this.moneyAccount = moneyAccount;
     }
 }
