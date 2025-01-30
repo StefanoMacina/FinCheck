@@ -10,6 +10,7 @@ export interface ExpenseResponse {
 export interface ObjectExpense {
     date: Date;
     list: Expense[];
+    balance: number;
 }
 
 export interface Expense {

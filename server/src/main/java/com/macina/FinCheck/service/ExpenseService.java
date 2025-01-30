@@ -45,6 +45,10 @@ public class ExpenseService extends GenericService<Expense>{
                 List<GroupedByDateExpense<Expense>> groupedExpenses = groupedByDate.entrySet().stream()
                         .map(entry -> GroupedByDateExpense.<Expense>builder()
                                 .date(entry.getKey())
+                                .balance(entry.getValue().stream()
+                                        .mapToDouble(Expense::getQuantity)
+                                        .sum()
+                                )
                                 .list(entry.getValue())
                                 .build())
                         .collect(Collectors.toList());

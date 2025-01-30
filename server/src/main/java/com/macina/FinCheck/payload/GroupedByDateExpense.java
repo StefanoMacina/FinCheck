@@ -17,4 +17,6 @@ public class GroupedByDateExpense<T> {
 
     private List<T> list;
 
+    private Double balance;
+
 }
