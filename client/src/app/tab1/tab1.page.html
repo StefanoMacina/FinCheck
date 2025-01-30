@@ -17,7 +17,7 @@
   </ion-header>
 
   <app-explore-container>
-    <ion-accordion-group *ngIf="expenses"  [multiple]="true">
+    <ion-accordion-group *ngIf="expenses" [multiple]="true">
       <ion-accordion *ngFor="let exp of expenses.data.exp">
         <ion-item slot="header" color="light">
           <ion-label>{{exp.date | date:'mediumDate'}}
@@ -26,15 +26,56 @@
         </ion-item>
 
         <ion-list slot="content">
-            <ion-item *ngFor="let expense of exp.list">
-              <div>{{expense.name}}</div>
-              <ion-badge slot="end">{{expense.quantity | currency:'EUR'}}</ion-badge>
-            </ion-item>              
+          <ion-item *ngFor="let expense of exp.list">
+            <div>{{expense.name}}</div>
+            <ion-badge slot="end">{{expense.quantity | currency:'EUR'}}</ion-badge>
+          </ion-item>
         </ion-list>
+
       </ion-accordion>
     </ion-accordion-group>
+
+    <ion-modal trigger="open-modal">
+      <ng-template>
+        <ion-header>
+          <ion-toolbar>
+            <ion-buttons slot="start">
+              <ion-button (click)="cancel()">
+                <ion-icon name="chevron-back-outline"></ion-icon>
+              </ion-button>
+            </ion-buttons>
+
+          </ion-toolbar>
+        </ion-header>
+        <ion-content class="ion-padding">
+          <ion-item>
+            <ion-input label="Transaction" labelPlacement="floating" [clearInput]="true"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-input type="date" label="Date" labelPlacement="floating" [clearInput]="true"></ion-input>
+          </ion-item>
+          <ion-item>
+            <ion-select label="Account" aria-placeholder="select">
+              <ion-select-option *ngFor="let account of moneyAccounts" [value]="account.name">
+                {{ account.name }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+          <ion-item>
+            <ion-select label="Category" value="free time">
+              <ion-select-option value="apple">Apple</ion-select-option>
+              <ion-select-option value="banana">Banana</ion-select-option>
+              <ion-select-option value="orange">Orange</ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-button (click)="confirm()">Save</ion-button>
+        </ion-content>
+      </ng-template>
+    </ion-modal>
+
     <ion-fab>
-      <ion-fab-button>
+      <ion-fab-button id="open-modal" expand="block">
         <ion-icon name="add"></ion-icon>
       </ion-fab-button>
     </ion-fab>

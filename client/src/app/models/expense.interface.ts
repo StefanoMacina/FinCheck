@@ -1,6 +1,7 @@
-export interface ExpenseResponse {
+
+export interface GenericResponse<T> {
     data : {
-        exp: ObjectExpense[];
+        exp : T
     };
     msg: string;
     code: number;

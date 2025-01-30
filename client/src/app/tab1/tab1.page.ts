@@ -1,7 +1,8 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ExpenseService } from '../service/expense.service';
-import { ExpenseResponse } from '../models/expense.interface';
 import { Subscription } from 'rxjs';
+import { IonModal } from '@ionic/angular';
+import { GenericResponse, MoneyAccount, ObjectExpense } from '../models/expense.interface';
 
 @Component({
   selector: 'app-tab1',
@@ -10,15 +11,20 @@ import { Subscription } from 'rxjs';
   standalone: false,
 })
 export class Tab1Page implements OnInit, OnDestroy {
+  @ViewChild(IonModal) modal!: IonModal;
+
   loading = false;
   private subscription?: Subscription;
+  private moneyAccountsSubscription?: Subscription;
   error: string | null = null;
-  expenses: ExpenseResponse | null = null;
+  expenses: GenericResponse<ObjectExpense[]> | null = null;
+  moneyAccounts: MoneyAccount[] = [];
 
   constructor( private expenseService : ExpenseService ) {}
 
   ngOnInit(){
     this.loadExpenses();
+    this.loadMoneyAccount();
   }
 
   loadExpenses(){
@@ -40,9 +46,34 @@ export class Tab1Page implements OnInit, OnDestroy {
     })
   }
 
+  loadMoneyAccount() {
+    this.expenseService.getAllMoneyAccount(); 
+    this.moneyAccountsSubscription = this.expenseService.getMoneyAccounts().subscribe({
+      next: (accounts) => {
+        this.moneyAccounts = accounts; 
+      },
+      error: (err) => {
+        console.error('Error fetching money accounts', err);
+      }
+    });
+  }
+
+  cancel() {
+    this.modal.dismiss(null, 'cancel');
+  }
+
+  confirm() {
+    this.modal.dismiss();
+  }
+
+  onWillDismiss(){}
+
   ngOnDestroy(){
     if(this.subscription){
       this.subscription.unsubscribe();
+    }
+    if (this.moneyAccountsSubscription) {
+      this.moneyAccountsSubscription.unsubscribe();
     }
   }
 
