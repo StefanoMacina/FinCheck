@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import {  GenericResponse, MoneyAccount, ObjectExpense } from '../models/expense.interface';
+import {  CategoryGroup, GenericResponse, MoneyAccount, ObjectExpense } from '../models/expense.interface';
 import { BehaviorSubject, catchError, Observable } from 'rxjs';
 
 @Injectable({
@@ -9,11 +9,11 @@ import { BehaviorSubject, catchError, Observable } from 'rxjs';
 export class ExpenseService {
   private url : string = "http://localhost:8081/api/v1/"; // todo : use env file instead
   private moneyAccountsSubject: BehaviorSubject<MoneyAccount[]> = new BehaviorSubject<MoneyAccount[]>([]);
+  private categoryGroupSubject: BehaviorSubject<CategoryGroup[]> = new BehaviorSubject<CategoryGroup[]>([]);
 
   constructor(private http : HttpClient) { }
 
   /** Transactions requests */
-
   getAllExpensesGroupedByDate() : Observable<GenericResponse<ObjectExpense[]>>{
     return this.http.get<GenericResponse<ObjectExpense[]>>(`${this.url}expense/groupedByDate`).pipe(
      catchError(error => {
@@ -51,8 +51,27 @@ export class ExpenseService {
     });
   }
 
+  getAllMoneyCategoryGroup(): void {
+    this.http.get<GenericResponse<CategoryGroup[]>>(`${this.url}categoryGroup`).pipe(
+      catchError(error => {
+        throw error;
+      })
+    ).subscribe({
+      next: (response) => {
+        this.categoryGroupSubject.next(response.data.exp);
+      },
+      error: (err) => {
+        console.error('Error fetching money accounts', err);
+      }
+    });
+  }
+
   getMoneyAccounts(): Observable<MoneyAccount[]> {
     return this.moneyAccountsSubject.asObservable();
+  }
+
+  getMoneyCategories(): Observable<CategoryGroup[]> {
+    return this.categoryGroupSubject.asObservable();
   }
 
 }

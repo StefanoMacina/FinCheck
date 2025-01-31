@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ExpenseService } from '../service/expense.service';
 import { Subscription } from 'rxjs';
 import { IonModal } from '@ionic/angular';
-import { GenericResponse, MoneyAccount, ObjectExpense } from '../models/expense.interface';
+import { CategoryGroup, GenericResponse, MoneyAccount, ObjectExpense } from '../models/expense.interface';
 
 @Component({
   selector: 'app-tab1',
@@ -16,15 +16,18 @@ export class Tab1Page implements OnInit, OnDestroy {
   loading = false;
   private subscription?: Subscription;
   private moneyAccountsSubscription?: Subscription;
+  private categoryGroupSubscription?: Subscription;
   error: string | null = null;
   expenses: GenericResponse<ObjectExpense[]> | null = null;
   moneyAccounts: MoneyAccount[] = [];
+  moneyCategories: CategoryGroup[] = [];
 
   constructor( private expenseService : ExpenseService ) {}
 
   ngOnInit(){
     this.loadExpenses();
-    this.loadMoneyAccount();
+    this.loadMoneyAccounts();
+    this.loadMoneyCategories();
   }
 
   loadExpenses(){
@@ -46,11 +49,23 @@ export class Tab1Page implements OnInit, OnDestroy {
     })
   }
 
-  loadMoneyAccount() {
+  loadMoneyAccounts() {
     this.expenseService.getAllMoneyAccount(); 
     this.moneyAccountsSubscription = this.expenseService.getMoneyAccounts().subscribe({
       next: (accounts) => {
         this.moneyAccounts = accounts; 
+      },
+      error: (err) => {
+        console.error('Error fetching money accounts', err);
+      }
+    });
+  }
+
+  loadMoneyCategories() {
+    this.expenseService.getAllMoneyCategoryGroup(); 
+    this.categoryGroupSubscription = this.expenseService.getMoneyCategories().subscribe({
+      next: (categories) => {
+        this.moneyCategories = categories; 
       },
       error: (err) => {
         console.error('Error fetching money accounts', err);
@@ -74,6 +89,9 @@ export class Tab1Page implements OnInit, OnDestroy {
     }
     if (this.moneyAccountsSubscription) {
       this.moneyAccountsSubscription.unsubscribe();
+    }
+    if (this.categoryGroupSubscription) {
+      this.categoryGroupSubscription.unsubscribe();
     }
   }
 

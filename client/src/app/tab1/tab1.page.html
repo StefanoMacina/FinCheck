@@ -62,10 +62,10 @@
             </ion-select>
           </ion-item>
           <ion-item>
-            <ion-select label="Category" value="free time">
-              <ion-select-option value="apple">Apple</ion-select-option>
-              <ion-select-option value="banana">Banana</ion-select-option>
-              <ion-select-option value="orange">Orange</ion-select-option>
+            <ion-select label="Category" aria-placeholder="select">
+              <ion-select-option *ngFor="let category of moneyCategories" [value]="category.name">
+                {{ category.name }}
+              </ion-select-option>
             </ion-select>
           </ion-item>
 
