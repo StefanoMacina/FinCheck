@@ -11,8 +11,6 @@ export class ExpenseService {
   private subjects: Map<string, BehaviorSubject<any>> = new Map();
 
   constructor(private http: HttpClient) {
-    this.subjects.set('moneyAccounts', new BehaviorSubject<MoneyAccount[]>([]));
-    this.subjects.set('categoryGroups', new BehaviorSubject<CategoryGroup[]>([]));
   }
 
   private handleError(error: HttpErrorResponse) {
@@ -36,24 +34,17 @@ export class ExpenseService {
     );
   }
 
-  /** Generic method for loading data into subject aftet fetching it from server, the component will use the subject
+  /** Add new  Subject dynamically by passing subject key for subjects map
    * 
-   * @param endpoint 
-   * @param subjectKey 
+   * @param key key of new subject
    */
-  private loadDataIntoSubject<T>(endpoint: string, subjectKey: string): void {
-    this.fetchData<T>(endpoint).subscribe({
-      next: (resp) => {
-        const subject = this.subjects.get(subjectKey);
-        if (subject) {
-          subject.next(resp.response.data);
-        }
-      },
-      error: (err) => {
-        console.error(`Error fetching ${subjectKey}`, err);
-        this.handleError(err);
-      }
-    });
+  private addDynamicSubject<T>(key: string){
+    let subject = this.subjects.get(key);
+    if (!subject) {
+      subject = new BehaviorSubject<T>([] as T);
+      this.subjects.set(key, subject);
+    }
+    return subject;
   }
 
   /** Generic method for getting subject as observable
@@ -69,24 +60,47 @@ export class ExpenseService {
     return subject.asObservable();
   }
 
-  getAllExpensesGroupedByDate(): Observable<Response<GroupedByDate<Expense>[]>> {
-    return this.fetchData<GroupedByDate<Expense>[]>('expense/groupedByDate');
+  /** Clear unused behaviorsubjects
+   * 
+   * @param key 
+   */
+  clearSubject(key: string): void {
+    const subject = this.subjects.get(key);
+    if (subject) {
+      subject.complete(); 
+      this.subjects.delete(key); 
+    }
   }
 
-  getAllMoneyAccount(): void {
-    this.loadDataIntoSubject<MoneyAccount[]>('moneyAccount', 'moneyAccounts');
+  getAll<T>(key: string, endpoint: string): Observable<T>{
+    const subject = this.addDynamicSubject<T>(key);
+    
+    this.fetchData<T>(endpoint).subscribe({
+      next: (resp) => {
+        subject.next(resp.response.data);
+      },
+      error: (err) => {
+        console.error(`Error fetching ${key}:`, err);
+        throw err;
+      }
+    });
+
+    return this.getSubjectObservable<T>(key);
   }
 
-  getMoneyAccounts(): Observable<MoneyAccount[]> {
-    return this.getSubjectObservable<MoneyAccount[]>('moneyAccounts');
-  }
-
-  getAllMoneyCategoryGroup(): void {
-    this.loadDataIntoSubject<CategoryGroup[]>('categoryGroup', 'categoryGroups');
-  }
-
-  getMoneyCategories(): Observable<CategoryGroup[]> {
-    return this.getSubjectObservable<CategoryGroup[]>('categoryGroups');
+  refreshData<T>(key: string, endpoint: string): void {
+    this.fetchData<T>(endpoint).subscribe({
+      next: (resp) => {
+        const subject = this.subjects.get(key);
+        if (subject) {
+          subject.next(resp.response.data);
+        }
+      },
+      error: (err) => {
+        console.error(`Error refreshing ${key}:`, err);
+        throw err;
+      }
+    });
   }
 
   create<T>(endpoint: string, data: T): Observable<Response<T>> {
