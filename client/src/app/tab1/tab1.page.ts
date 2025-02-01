@@ -89,16 +89,13 @@ export class Tab1Page implements OnInit, OnDestroy {
   }
 
   onWillDismiss(event: any) {
-    // Handle modal dismiss event
     const { data, role } = event.detail;
     if (role === 'confirm') {
-      // Handle confirmed dismiss
       console.log('Modal confirmed with data:', data);
     }
   }
 
   ngOnDestroy() {
-    // Unsubscribe from all subscriptions
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
