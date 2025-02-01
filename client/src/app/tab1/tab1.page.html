@@ -18,7 +18,7 @@
 
   <app-explore-container>
     <ion-accordion-group *ngIf="expenses" [multiple]="true">
-      <ion-accordion *ngFor="let exp of expenses.data.exp">
+      <ion-accordion *ngFor="let exp of expenses">
         <ion-item slot="header" color="light">
           <ion-label>{{exp.date | date:'mediumDate'}}
           </ion-label>

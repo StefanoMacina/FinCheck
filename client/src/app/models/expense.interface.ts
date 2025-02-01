@@ -1,16 +1,15 @@
-
-export interface GenericResponse<T> {
-    data : {
-        exp : T
-    };
-    msg: string;
-    code: number;
-    entityError: any
+export interface Response<T> {
+    response: {
+        data: T;
+        msg: string;
+        code: number;
+        entityError: any;
+    }
 }
 
-export interface ObjectExpense {
-    date: Date;
-    list: Expense[];
+export interface GroupedByDate<T> {
+    date: string;
+    list: T[];
     balance: number;
 }
 

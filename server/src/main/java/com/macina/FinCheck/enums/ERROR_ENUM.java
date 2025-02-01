@@ -8,7 +8,8 @@ public enum ERROR_ENUM {
     SERVER_ERROR(2),
     NOT_FOUND(3),
     ALREADY_EXIST(4),
-    EMPTY_SET(5);
+    EMPTY_SET(5),
+    PARTIAL_SUCCESS(6);
     public final Integer error;
 
     ERROR_ENUM(Integer error  ) {

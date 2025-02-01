@@ -1,6 +1,7 @@
 package com.macina.FinCheck.model.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.macina.FinCheck.converter.ExpCategoryGroupConverter;
@@ -35,7 +36,7 @@ public class Expense implements GenericEntity<Expense> {
     private Double quantity;
 
     @Column(nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
     private LocalDate date;
 
     @ManyToOne(optional = false)

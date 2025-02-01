@@ -2,6 +2,7 @@ package com.macina.FinCheck.controller.controllers;
 
 import com.macina.FinCheck.controller.GenericController;
 import com.macina.FinCheck.model.models.Expense;
+import com.macina.FinCheck.payload.GroupedByDateExpense;
 import com.macina.FinCheck.payload.ResponseData;
 import com.macina.FinCheck.repository.GenericRepository;
 import com.macina.FinCheck.service.ExpenseService;
@@ -26,8 +27,8 @@ public class ExpenseController extends GenericController<Expense> {
     }
 
     @GetMapping("/groupedByDate")
-    public ResponseEntity<ResponseData<Map<String,Object>>> getAllGroupedByDate() {
-        ResponseData<Map<String, Object>> response = expenseService.findAllGroupedByDate();
+    public ResponseEntity<ResponseData<List<GroupedByDateExpense<Expense>>>> getAllGroupedByDate() {
+        ResponseData<List<GroupedByDateExpense<Expense>>> response = expenseService.findAllGroupedByDate();
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

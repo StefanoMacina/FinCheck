@@ -4,11 +4,9 @@ import com.macina.FinCheck.enums.ERROR_ENUM;
 import com.macina.FinCheck.enums.GENERIC_ENUM;
 import com.macina.FinCheck.enums.MESSAGE_ENUM;
 import com.macina.FinCheck.model.GenericEntity;
-import com.macina.FinCheck.model.models.Expense;
 import com.macina.FinCheck.payload.ResponseData;
 import com.macina.FinCheck.repository.GenericRepository;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public abstract class GenericService<T extends GenericEntity<T>> {
 
@@ -18,35 +16,30 @@ public abstract class GenericService<T extends GenericEntity<T>> {
         this.repository = repository;
     }
 
-    public ResponseData<Map<String, T>> save(T entity) {
-        Map<String, T> m = new HashMap<>();
+    public ResponseData<T> save(T entity) {
+
         String msg = MESSAGE_ENUM.SUCCESS.getMsg();;
         Integer error = ERROR_ENUM.SUCCESS.getCode();
-
+        T savedEntity = null;
         try{
-            T savedEntity = repository.save(entity);
-            m.put(GENERIC_ENUM.expenseField.getMsg(),savedEntity);
-
+            savedEntity = repository.save(entity);
         }catch (Exception e){
             msg = MESSAGE_ENUM.SERVER_ERROR.getMsg();
             error = ERROR_ENUM.SERVER_ERROR.getCode();
+            savedEntity = entity;
         }
-        return ResponseData.<Map<String,T>>builder()
-                .data(m)
-                .msg(msg)
-                .code(error)
-                .build();
+        return new ResponseData<>(savedEntity,msg,error,savedEntity);
     }
 
-    public ResponseData<Map<String,T>> findById(Long id) {
-        Map<String, T> m = new HashMap<>();
+    public ResponseData<T> findById(Long id) {
         String msg = MESSAGE_ENUM.SUCCESS.getMsg();;
         Integer error = ERROR_ENUM.SUCCESS.getCode();
+        T entity = null;
 
         try{
-            Optional<T> s = repository.findById(id);
-            if(s.isPresent()){
-                m.put(GENERIC_ENUM.expenseField.getMsg(), s.get());
+            Optional<T> r = repository.findById(id);
+            if(r.isPresent()){
+               entity = r.get();
             } else {
                 msg = MESSAGE_ENUM.EMPTY_SET.getMsg();
                 error = ERROR_ENUM.NOT_FOUND.getCode();
@@ -55,48 +48,43 @@ public abstract class GenericService<T extends GenericEntity<T>> {
             msg = MESSAGE_ENUM.SERVER_ERROR.getMsg();
             error = ERROR_ENUM.SERVER_ERROR.getCode();
         }
-        return ResponseData.<Map<String,T>>builder()
-                .data(m)
-                .msg(msg)
-                .code(error)
-                .build();
+        return new ResponseData<>(entity,msg,error,entity);
     }
 
-    public ResponseData<Map<String, List<T>>> findAll() {
-        Map<String, List<T>> m = new HashMap<>();
-        String msg = MESSAGE_ENUM.SUCCESS.getMsg();;
-        Integer error = ERROR_ENUM.SUCCESS.getCode();
+    public ResponseData<List<T>> findAll() {
 
+        String msg = MESSAGE_ENUM.SUCCESS.getMsg();
+        Integer error = ERROR_ENUM.SUCCESS.getCode();
+        List<T> entities = null;
         try{
             List<T> l = repository.findAll();
             if(l.isEmpty()){
                 msg = MESSAGE_ENUM.EMPTY_SET.getMsg();
                 error = ERROR_ENUM.EMPTY_SET.getCode();
             } else{
-                m.put(GENERIC_ENUM.expenseField.getMsg(), l);
+                entities = l;
             }
         }catch (Exception e){
             msg = MESSAGE_ENUM.SERVER_ERROR.getMsg();
         }
-        return ResponseData.<Map<String,List<T>>>builder()
-                .data(m)
-                .msg(msg)
-                .code(error)
-                .build();
+        return new ResponseData<>(entities,msg,error,null);
     }
 
     public ResponseData<Map<String, Object>> delete(List<Long> ids) {
+        // Check for empty input
         if (ids == null || ids.isEmpty()) {
-            return ResponseData.<Map<String, Object>>builder()
-                    .code(0)
-                    .msg(MESSAGE_ENUM.EMPTY_SET.getMsg())
-                    .entityError(ERROR_ENUM.EMPTY_SET)
-                    .build();
+            return new ResponseData<>(
+                    null,
+                    MESSAGE_ENUM.EMPTY_SET.getMsg(),
+                    ERROR_ENUM.EMPTY_SET.getCode(),
+                    ERROR_ENUM.EMPTY_SET
+            );
         }
 
         int totalDeleted = 0;
         List<Map<String, Object>> failedDetails = new ArrayList<>();
 
+        // Process each ID
         for (Long id : ids) {
             try {
                 if (!repository.existsById(id)) {
@@ -117,16 +105,32 @@ public abstract class GenericService<T extends GenericEntity<T>> {
             }
         }
 
-        Map<String,Object> r = new HashMap<>();
-        r.put("totalDeleted", totalDeleted);
-        r.put("totalFailed", failedDetails.size());
-        r.put("failedIds", failedDetails);
+        Map<String, Object> resultData = new HashMap<>();
+        resultData.put("totalDeleted", totalDeleted);
+        resultData.put("totalFailed", failedDetails.size());
+        resultData.put("failedIds", failedDetails);
 
-        return ResponseData.<Map<String, Object>>builder()
-                .data(r)
-                .code(0)
-                .msg(totalDeleted + " items deleted successfully")
-                .build();
+        String responseMessage;
+        Integer responseCode;
+
+        if (totalDeleted == 0) {
+            responseMessage = MESSAGE_ENUM.SERVER_ERROR.getMsg();
+            responseCode = ERROR_ENUM.SERVER_ERROR.getCode();
+        } else if (failedDetails.isEmpty()) {
+            responseMessage = MESSAGE_ENUM.SUCCESS.getMsg();
+            responseCode = ERROR_ENUM.SUCCESS.getCode();
+        } else {
+            responseMessage = totalDeleted + " items deleted successfully, " + failedDetails.size() + " failed";
+            responseCode = ERROR_ENUM.PARTIAL_SUCCESS.getCode();
+        }
+
+        // Return formatted response
+        return new ResponseData<>(
+                resultData,
+                responseMessage,
+                responseCode,
+                failedDetails.isEmpty() ? null : failedDetails
+        );
     }
 
 }

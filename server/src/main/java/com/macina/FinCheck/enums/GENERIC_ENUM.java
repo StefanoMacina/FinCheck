@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum GENERIC_ENUM {
 
-    expenseField("exp");
+    dataKey("data");
 
     public final String msg;
 

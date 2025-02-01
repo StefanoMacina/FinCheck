@@ -19,22 +19,22 @@ public abstract class GenericController<T extends GenericEntity<T>> {
     }
 
     @GetMapping
-    public ResponseEntity<ResponseData<Map<String, List<T>>>> getAll(){
-        ResponseData<Map<String,List<T>>> r = service.findAll();
+    public ResponseEntity<ResponseData<List<T>>> getAll(){
+        ResponseData<List<T>> r = service.findAll();
         return new ResponseEntity<>(r, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseData<Map<String,T>>> getById(@PathVariable Long id){
-        ResponseData<Map<String,T>> r = service.findById(id);
+    public ResponseEntity<ResponseData<T>> getById(@PathVariable Long id){
+        ResponseData<T> r = service.findById(id);
         return new ResponseEntity<>(r, HttpStatus.OK);
     }
 
     @PostMapping
-    public ResponseEntity<ResponseData<Map<String,T>>> save(
+    public ResponseEntity<ResponseData<T>> save(
             @RequestBody T expense
     ){
-        ResponseData<Map<String,T>> r = service.save(expense);
+        ResponseData<T> r = service.save(expense);
         return new ResponseEntity<>(r,HttpStatus.OK);
     }
 

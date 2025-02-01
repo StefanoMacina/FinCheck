@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,11 +28,12 @@ public class ExpenseService extends GenericService<Expense>{
      * Specific method to retrieve all expenses grouped by date
      * @return an object with key "exp" and as value a list of object of type GroupedByDateExpense
      */
-    public ResponseData<Map<String,Object>> findAllGroupedByDate() {
+    public ResponseData<List<GroupedByDateExpense<Expense>>> findAllGroupedByDate() {
         Map<String,Object> m = new HashMap<>();
 
         String msg = MESSAGE_ENUM.SUCCESS.getMsg();
         Integer error = ERROR_ENUM.SUCCESS.getCode();
+        List<GroupedByDateExpense<Expense>> groupedExpenses = new ArrayList<>();
 
         try {
             List<Expense> expenses = repository.findAll();
@@ -39,10 +41,11 @@ public class ExpenseService extends GenericService<Expense>{
                 msg = MESSAGE_ENUM.EMPTY_SET.getMsg();
                 error = ERROR_ENUM.EMPTY_SET.getCode();
             } else {
+
                 Map<LocalDate, List<Expense>> groupedByDate = expenses.stream()
                         .collect(Collectors.groupingBy(Expense::getDate));
 
-                List<GroupedByDateExpense<Expense>> groupedExpenses = groupedByDate.entrySet().stream()
+                groupedExpenses = groupedByDate.entrySet().stream()
                         .map(entry -> GroupedByDateExpense.<Expense>builder()
                                 .date(entry.getKey())
                                 .balance(entry.getValue().stream()
@@ -51,18 +54,14 @@ public class ExpenseService extends GenericService<Expense>{
                                 )
                                 .list(entry.getValue())
                                 .build())
-                        .collect(Collectors.toList());
-                m.put("exp", groupedExpenses);
+                        .toList();
+
             }
         } catch (Exception e) {
             msg = MESSAGE_ENUM.SERVER_ERROR.getMsg();
             error = ERROR_ENUM.SERVER_ERROR.getCode();
         }
 
-        return ResponseData.<Map<String, Object>>builder()
-                .data(m)
-                .msg(msg)
-                .code(error)
-                .build();
+        return new ResponseData<>(groupedExpenses,msg,error,null);
     }
 }

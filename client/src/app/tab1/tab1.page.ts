@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ExpenseService } from '../service/expense.service';
 import { Subscription } from 'rxjs';
 import { IonModal } from '@ionic/angular';
-import { CategoryGroup, GenericResponse, MoneyAccount, ObjectExpense } from '../models/expense.interface';
+import { CategoryGroup, MoneyAccount, GroupedByDate, Expense } from '../models/expense.interface';
 
 @Component({
   selector: 'app-tab1',
@@ -12,65 +12,72 @@ import { CategoryGroup, GenericResponse, MoneyAccount, ObjectExpense } from '../
 })
 export class Tab1Page implements OnInit, OnDestroy {
   @ViewChild(IonModal) modal!: IonModal;
-
+  
   loading = false;
-  private subscription?: Subscription;
-  private moneyAccountsSubscription?: Subscription;
-  private categoryGroupSubscription?: Subscription;
   error: string | null = null;
-  expenses: GenericResponse<ObjectExpense[]> | null = null;
+  expenses: GroupedByDate<Expense>[] | null = null;
   moneyAccounts: MoneyAccount[] = [];
   moneyCategories: CategoryGroup[] = [];
 
-  constructor( private expenseService : ExpenseService ) {}
+  private subscriptions: Subscription[] = [];
 
-  ngOnInit(){
+  constructor(private expenseService: ExpenseService) {}
+
+  ngOnInit() {
     this.loadExpenses();
     this.loadMoneyAccounts();
     this.loadMoneyCategories();
   }
 
-  loadExpenses(){
+  loadExpenses() {
     this.loading = true;
-
-   this.subscription = this.expenseService.getAllExpensesGroupedByDate()
-    .subscribe({
-      next: (data) => {
-        this.expenses = data;
-        this.loading = false;
-      },
-      error: (error) => {
-        this.error = 'Failed to load expenses. Please try again later.';
-        this.loading = false;
-      },
-      complete: () => {
-        this.loading = false;
-      }
-    })
+    const sub = this.expenseService.getAllExpensesGroupedByDate()
+      .subscribe({
+        next: (response) => {
+          this.expenses = response.response.data;
+          this.loading = false;
+        },
+        error: (error) => {
+          this.error = 'Failed to load expenses. Please try again later.';
+          this.loading = false;
+          console.error('Error loading expenses:', error);
+        },
+        complete: () => {
+          this.loading = false;
+        }
+      });
+    
+    this.subscriptions.push(sub);
   }
 
   loadMoneyAccounts() {
-    this.expenseService.getAllMoneyAccount(); 
-    this.moneyAccountsSubscription = this.expenseService.getMoneyAccounts().subscribe({
+    this.expenseService.getAllMoneyAccount();
+    const sub = this.expenseService.getMoneyAccounts().subscribe({
       next: (accounts) => {
-        this.moneyAccounts = accounts; 
+        this.moneyAccounts = accounts;
       },
       error: (err) => {
-        console.error('Error fetching money accounts', err);
+        console.error('Error fetching money accounts:', err);
+        this.error = 'Failed to load money accounts. Please try again later.';
       }
     });
+
+    this.subscriptions.push(sub);
   }
 
   loadMoneyCategories() {
-    this.expenseService.getAllMoneyCategoryGroup(); 
-    this.categoryGroupSubscription = this.expenseService.getMoneyCategories().subscribe({
+    this.expenseService.getAllMoneyCategoryGroup();
+    const sub = this.expenseService.getMoneyCategories().subscribe({
       next: (categories) => {
-        this.moneyCategories = categories; 
+        this.moneyCategories = categories;
       },
       error: (err) => {
-        console.error('Error fetching money accounts', err);
+        console.error('Error fetching categories:', err);
+        this.error = 'Failed to load categories. Please try again later.';
       }
     });
+
+    this.subscriptions.push(sub);
   }
 
   cancel() {
@@ -81,18 +88,17 @@ export class Tab1Page implements OnInit, OnDestroy {
     this.modal.dismiss();
   }
 
-  onWillDismiss(){}
-
-  ngOnDestroy(){
-    if(this.subscription){
-      this.subscription.unsubscribe();
-    }
-    if (this.moneyAccountsSubscription) {
-      this.moneyAccountsSubscription.unsubscribe();
-    }
-    if (this.categoryGroupSubscription) {
-      this.categoryGroupSubscription.unsubscribe();
+  onWillDismiss(event: any) {
+    // Handle modal dismiss event
+    const { data, role } = event.detail;
+    if (role === 'confirm') {
+      // Handle confirmed dismiss
+      console.log('Modal confirmed with data:', data);
     }
   }
 
+  ngOnDestroy() {
+    // Unsubscribe from all subscriptions
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
 }
