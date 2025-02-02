@@ -45,7 +45,7 @@ public class Expense implements GenericEntity<Expense> {
 
     @ManyToOne(optional = false)
     @JsonDeserialize(converter = MoneyAccountConverter.class)
-    @JsonManagedReference
+   // @JsonManagedReference
     private MoneyAccount moneyAccount;
 
     public Expense(String name, Double quantity, LocalDate date, ExpCategoryGroup expCategoryGroup, MoneyAccount moneyAccount) {

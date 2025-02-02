@@ -32,9 +32,9 @@ public abstract class GenericController<T extends GenericEntity<T>> {
 
     @PostMapping
     public ResponseEntity<ResponseData<T>> save(
-            @RequestBody T expense
+            @RequestBody T entity
     ){
-        ResponseData<T> r = service.save(expense);
+        ResponseData<T> r = service.save(entity);
         return new ResponseEntity<>(r,HttpStatus.OK);
     }
 

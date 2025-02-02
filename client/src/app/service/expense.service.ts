@@ -62,7 +62,7 @@ export class ExpenseService {
 
   /** Clear unused behaviorsubjects
    * 
-   * @param key 
+   * @param key subject to clear
    */
   clearSubject(key: string): void {
     const subject = this.subjects.get(key);
@@ -72,6 +72,12 @@ export class ExpenseService {
     }
   }
 
+  /**
+   * 
+   * @param key key of new subject to track, used for retrieving data and cleanup when component will destroy
+   * @param endpoint endpoint to call
+   * @returns observable of specific type
+   */
   getAll<T>(key: string, endpoint: string): Observable<T>{
     const subject = this.addDynamicSubject<T>(key);
     

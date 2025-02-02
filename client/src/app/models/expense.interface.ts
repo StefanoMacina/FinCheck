@@ -14,13 +14,13 @@ export interface GroupedByDate<T> {
 }
 
 export interface Expense {
-    id: number;
+    id: number | null;
     name: string;
     quantity: number;
-    description: string;
-    date: Date;
-    expCategoryGroup: CategoryGroup;
-    moneyAccount: MoneyAccount;
+    description: string | null;
+    date: string;
+    expCategoryGroup: CategoryGroup | number;
+    moneyAccount: MoneyAccount | number;
 }
 
 export interface CategoryGroup {
