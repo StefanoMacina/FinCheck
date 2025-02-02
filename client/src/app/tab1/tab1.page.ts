@@ -1,10 +1,11 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ExpenseService } from '../service/expense.service';
 import { Subscription } from 'rxjs';
-import { IonModal } from '@ionic/angular';
+import { IonModal, RefresherEventDetail } from '@ionic/angular';
 import { CategoryGroup, MoneyAccount, GroupedByDate, Expense } from '../models/expense.interface';
 import {FormGroup, FormControl} from '@angular/forms';
 import { DatePipe } from '@angular/common';
+import { IonRefresherCustomEvent } from '@ionic/core';
 
 @Component({
   selector: 'app-tab1',
@@ -77,6 +78,32 @@ export class Tab1Page implements OnInit, OnDestroy {
     });
   
     this.subscriptions.push(sub);
+  }
+
+  async handleRefresh(event: CustomEvent) {
+    const refreshPromises = this.dataConfig.map(({ key, endpoint }) => {
+      return new Promise<void>((resolve, reject) => {
+        this.expenseService.refreshData(key, endpoint);
+        const subscription = this.expenseService.getSubjectObservable(key).subscribe({
+          next: () => {
+            subscription.unsubscribe();
+            resolve();
+          },
+          error: (err) => {
+            subscription.unsubscribe();
+            reject(err);
+          }
+        });
+      });
+    });
+  
+    try {
+      await Promise.all(refreshPromises);
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+    } finally {
+      (event.target as HTMLIonRefresherElement).complete();
+    }
   }
 
   cancel() {

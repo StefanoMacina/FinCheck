@@ -52,7 +52,7 @@ export class ExpenseService {
    * @param key 
    * @returns 
    */
-  private getSubjectObservable<T>(key: string): Observable<T> {
+  public getSubjectObservable<T>(key: string): Observable<T> {
     const subject = this.subjects.get(key);
     if (!subject) {
       throw new Error(`Subject ${key} not found`);
