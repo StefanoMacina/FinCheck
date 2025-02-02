@@ -1,8 +1,17 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>
-      ---
-    </ion-title>
+    <ion-title> --- </ion-title>
+    <ion-button *ngIf="selectionMode" 
+            (click)="selectionMode = false; 
+            selectedItems.clear()">
+            <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
+    </ion-button>
+    <ion-button *ngIf="selectionMode" 
+            (click)="deleteItems(); 
+            selectedItems.clear()">
+            <ion-icon slot="icon-only" name="trash" color="danger"></ion-icon>
+    </ion-button>
+    <ion-icon *ngIf="selectionMode" slot="icon-only" name="trash" color="danger"></ion-icon>
   </ion-toolbar>
 </ion-header>
 
@@ -20,21 +29,35 @@
   </ion-header>
 
   <app-explore-container>
-    <ion-accordion-group *ngIf="expenses"  [multiple]="true" [value]="openAccordions">
-      <ion-accordion *ngFor="let exp of expenses; let i = index" value="i" >
+    <ion-accordion-group *ngIf="expenses" [multiple]="true">
+      <ion-accordion *ngFor="let exp of expenses; let i = index">
         <ion-item slot="header" color="light">
-          <ion-label>{{exp.date | date:'mediumDate'}}
-          </ion-label>
+          <ion-label>{{exp.date | date:'mediumDate'}}</ion-label>
+
           <ion-chip slot="end">{{exp.balance | currency: 'EUR'}}</ion-chip>
         </ion-item>
 
         <ion-list slot="content">
-          <ion-item *ngFor="let expense of exp.list" (click)="openUpdateModal(expense)">
-            <div>{{expense.name}}</div>
-            <ion-badge slot="end">{{expense.quantity | currency:'EUR'}}</ion-badge>
+          <ion-item
+            *ngFor="let item of exp.list"
+            (click)="openUpdateModal(item)"
+            (touchstart)="onPressStart($event, item)"
+            (touchend)="onPressEnd()"
+            (click)="toggleSelection(item)"
+            (mousedown)="onPressStart($event, item)"
+            (mouseup)="onPressEnd()"
+            (mouseleave)="onPressEnd()"
+            >
+            <ion-checkbox
+              slot="start"
+              *ngIf="selectionMode"
+              [checked]="isSelected(item)"
+              aria-label="Toggle task completion"
+            ></ion-checkbox>
+            <div>{{item.name}}</div>
+            <ion-badge slot="end">{{item.quantity | currency:'EUR'}}</ion-badge>
           </ion-item>
         </ion-list>
-
       </ion-accordion>
     </ion-accordion-group>
 
@@ -52,53 +75,83 @@
 
         <ion-content class="ion-padding">
           <form [formGroup]="profileForm">
-            
-            <ion-item>
-              <ion-input label="Transaction name" labelPlacement="floating" [clearInput]="true" formControlName="transactionName"></ion-input>
-            </ion-item>
-            
             <ion-item>
               <ion-input
-              type="number"
-              label="Value"
-              labelPlacement="floating"
-              [clearInput]="true"
-              formControlName="value"
+                label="Transaction name"
+                labelPlacement="floating"
+                [clearInput]="true"
+                formControlName="transactionName"
               ></ion-input>
             </ion-item>
-            
+
             <ion-item>
-              <ion-input type="date" label="Date" labelPlacement="floating" [clearInput]="true" formControlName="date"></ion-input>
+              <ion-input
+                type="number"
+                label="Value"
+                labelPlacement="floating"
+                [clearInput]="true"
+                formControlName="value"
+              ></ion-input>
             </ion-item>
-            
-            <ion-item> 
-            <ion-select label="Account" aria-placeholder="select" formControlName="account" [compareWith]="compareWith">
-              <ion-select-option *ngFor="let account of moneyAccounts" [value]="account.id" >
-                {{ account.name }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
-          
-          <ion-item>
-            <ion-select label="Category" aria-placeholder="select" formControlName="category" [compareWith]="compareWith">
-              <ion-select-option *ngFor="let category of moneyCategories" [value]="category.id" >
-                {{ category.name }}
-              </ion-select-option>
-            </ion-select>
-          </ion-item>
+
             <ion-item>
-              <ion-toggle [checked]="isExpense" (ionChange)="toggleLabel($event)" justify="space-between" color="danger" >
+              <ion-input
+                type="date"
+                label="Date"
+                labelPlacement="floating"
+                [clearInput]="true"
+                formControlName="date"
+              ></ion-input>
+            </ion-item>
+
+            <ion-item>
+              <ion-select
+                label="Account"
+                aria-placeholder="select"
+                formControlName="account"
+                [compareWith]="compareWith"
+              >
+                <ion-select-option
+                  *ngFor="let account of moneyAccounts"
+                  [value]="account.id"
+                >
+                  {{ account.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+
+            <ion-item>
+              <ion-select
+                label="Category"
+                aria-placeholder="select"
+                formControlName="category"
+                [compareWith]="compareWith"
+              >
+                <ion-select-option
+                  *ngFor="let category of moneyCategories"
+                  [value]="category.id"
+                >
+                  {{ category.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <ion-item>
+              <ion-toggle
+                [checked]="isExpense"
+                (ionChange)="toggleItemObject($event)"
+                justify="space-between"
+                color="danger"
+              >
                 {{ isExpense ? 'Expense' : 'Income' }}
               </ion-toggle>
             </ion-item>
 
-          <ion-button (click)="save()">Save</ion-button>
-          
-        </form>
+            <ion-button (click)="save()">Save</ion-button>
+          </form>
         </ion-content>
       </ng-template>
     </ion-modal>
-    
+
     <ion-fab>
       <ion-fab-button id="open-modal" expand="block">
         <ion-icon name="add"></ion-icon>

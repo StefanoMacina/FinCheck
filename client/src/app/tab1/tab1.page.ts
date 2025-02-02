@@ -29,8 +29,10 @@ export class Tab1Page implements OnInit, OnDestroy {
   isExpense : boolean = true;
   selectedTransaction: Expense | undefined | null;
   openAccordions: number[] = [1,2,3,4,5,6];
+  pressTimeout: any;
+  selectionMode = false;
+  selectedItems: Set<number> = new Set()
   
-
   profileForm = new FormGroup({    
       transactionName: new FormControl(''),    
       value: new FormControl(''),
@@ -106,40 +108,78 @@ export class Tab1Page implements OnInit, OnDestroy {
     }
   }
 
+  /** The two event allow the selection to work both with touchscreen device and mouse device
+   * 
+   * @param event 
+   * @param item 
+   */
+  onPressStart(event: MouseEvent | TouchEvent, item: any) {
+    this.pressTimeout = setTimeout(() => {
+      this.selectionMode = true;
+      this.selectedItems.add(item.id);
+      event.preventDefault();
+    }, 2000);
+  }
+
+  onPressEnd() {
+    clearTimeout(this.pressTimeout);
+  }
+
+  toggleSelection(item: any) {
+    if (this.selectionMode) {
+      if (this.selectedItems.has(item.id)) {
+        this.selectedItems.delete(item.id);
+      } else {
+        this.selectedItems.add(item.id);
+      }
+    }
+  }
+
+  isSelected(item: any): boolean {
+    return this.selectedItems.has(item.id);
+  }
+
   cancel() {
     this.modal.dismiss(null, 'cancel');
   }
 
-  toggleLabel(event: any) {
+  /**
+   * Used for pre compiling update form based on item clicked
+   * @param event 
+   */
+  toggleItemObject(event: any) {
     this.isExpense = event.detail.checked;
   }
 
   openUpdateModal(expense: Expense) {
-    this.selectedTransaction = expense;
-    
-    const dateParts = expense.date.split('-');
-    const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
-
-    // Gestiamo sia il caso in cui riceviamo un oggetto che un numero
-    const accountId = typeof expense.moneyAccount === 'object' 
-        ? expense.moneyAccount.id.toString()
-        : expense.moneyAccount.toString();
-
-    const categoryId = typeof expense.expCategoryGroup === 'object'
-        ? expense.expCategoryGroup.id.toString()
-        : expense.expCategoryGroup.toString();
-
-    this.profileForm.patchValue({
+    if(!this.selectionMode){
+      
+      this.selectedTransaction = expense;
+      
+      const dateParts = expense.date.split('-');
+      const formattedDate = `${dateParts[2]}-${dateParts[1]}-${dateParts[0]}`;
+      
+      const accountId = typeof expense.moneyAccount === 'object' 
+      ? expense.moneyAccount.id.toString()
+      : expense.moneyAccount.toString();
+      
+      const categoryId = typeof expense.expCategoryGroup === 'object'
+      ? expense.expCategoryGroup.id.toString()
+      : expense.expCategoryGroup.toString();
+      
+      this.profileForm.patchValue({
         transactionName: expense.name,
         value: Math.abs(expense.quantity).toString(),
         date: formattedDate,
         account: accountId,
         category: categoryId
-    });
-
-    this.isExpense = expense.quantity < 0;
-    document.getElementById('open-modal')?.click();
-}
+      });
+      
+      this.isExpense = expense.quantity < 0;
+      
+      document.getElementById('open-modal')?.click();
+    }
+  }
 
   compareWith = (o1: any, o2: any) => {
     if (!o1 || !o2) {
@@ -167,6 +207,17 @@ export class Tab1Page implements OnInit, OnDestroy {
       next: resp => {
         this.expenseService.refreshData("groupedByDateTransactions","expense/groupedByDate")
         this.modal.dismiss();
+      },
+      error: error => {
+        console.log(error)
+      }
+    })
+  }
+
+  deleteItems(){
+    this.expenseService.delete("expense",this.selectedItems).subscribe({
+      next: resp => {
+        this.expenseService.refreshData("groupedByDateTransactions","expense/groupedByDate")
       },
       error: error => {
         console.log(error)

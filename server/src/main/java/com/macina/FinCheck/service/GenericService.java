@@ -71,7 +71,6 @@ public abstract class GenericService<T extends GenericEntity<T>> {
     }
 
     public ResponseData<Map<String, Object>> delete(List<Long> ids) {
-        // Check for empty input
         if (ids == null || ids.isEmpty()) {
             return new ResponseData<>(
                     null,

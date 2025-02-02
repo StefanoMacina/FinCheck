@@ -1,4 +1,4 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, throwError } from 'rxjs';
 import { CategoryGroup, Expense, GroupedByDate, MoneyAccount, Response } from '../models/expense.interface';
@@ -121,8 +121,11 @@ export class ExpenseService {
     );
   }
 
-  delete(endpoint: string, id: string): Observable<Response<void>> {
-    return this.http.delete<Response<void>>(`${this.url}${endpoint}/${id}`).pipe(
+  delete(endpoint: string, list: Set<number>): Observable<Response<void>> {
+    return this.http.request<Response<void>>('DELETE', `${this.url}${endpoint}`, {
+      body: Array.from(list),  
+      headers: new HttpHeaders({ 'Content-Type': 'application/json' }) 
+    }).pipe(
       catchError(this.handleError)
     );
   }
