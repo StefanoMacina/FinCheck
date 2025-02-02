@@ -27,6 +27,8 @@ export class Tab1Page implements OnInit, OnDestroy {
   submitForm: FormGroup = new FormGroup({});
   isExpense : boolean = true;
   selectedTransaction: Expense | undefined | null;
+  openAccordions: number[] = [1,2,3,4,5,6];
+  
 
   profileForm = new FormGroup({    
       transactionName: new FormControl(''),    
@@ -34,7 +36,7 @@ export class Tab1Page implements OnInit, OnDestroy {
       date: new FormControl(''),
       account: new FormControl(''),
       category: new FormControl(''),
-    });
+  });
 
   constructor(
     private expenseService: ExpenseService,
@@ -64,13 +66,16 @@ export class Tab1Page implements OnInit, OnDestroy {
     const sub = this.expenseService.getAll<T>(key, endpoint).subscribe({
       next: resp => {
         (this as any)[targetProperty] = resp;
+        if (targetProperty === 'expenses') {
+          this.openAccordions = (resp as any[]).map((_, index) => index);
+        }
       },
       error: err => {
         console.error(`Error fetching ${key}:`, err);
         this.error = `Failed to load ${key}. Please try again later.`;
       }
     });
-
+  
     this.subscriptions.push(sub);
   }
 
