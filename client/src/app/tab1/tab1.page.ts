@@ -218,6 +218,7 @@ export class Tab1Page implements OnInit, OnDestroy {
     this.expenseService.delete("expense",this.selectedItems).subscribe({
       next: resp => {
         this.expenseService.refreshData("groupedByDateTransactions","expense/groupedByDate")
+        this.selectionMode = false;
       },
       error: error => {
         console.log(error)

@@ -12,12 +12,7 @@
   <div *ngIf="loading" class="ion-text-center">
     <ion-spinner></ion-spinner>
   </div>
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
-    </ion-toolbar>
-  </ion-header>
-
+  
   <app-explore-container>
     <ion-accordion-group *ngIf="expenses" [multiple]="true">
       <ion-accordion *ngFor="let exp of expenses; let i = index">

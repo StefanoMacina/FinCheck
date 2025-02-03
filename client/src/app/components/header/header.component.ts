@@ -30,5 +30,6 @@ export class HeaderComponent {
     this.deleteSelected.emit(); 
     this.selectedItems.clear();
     this.selectionMode = false;
+    
   }
 }
