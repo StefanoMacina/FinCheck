@@ -1,18 +1,18 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ExpenseService } from '../service/expense.service';
 import { Subscription } from 'rxjs';
-import { IonModal, RefresherEventDetail } from '@ionic/angular';
+import { IonModal } from '@ionic/angular';
 import { CategoryGroup, MoneyAccount, GroupedByDate, Expense } from '../models/expense.interface';
 import {FormGroup, FormControl} from '@angular/forms';
 import { DatePipe } from '@angular/common';
-import { IonRefresherCustomEvent } from '@ionic/core';
+
 
 @Component({
   selector: 'app-tab1',
   templateUrl: 'tab1.page.html',
   styleUrls: ['tab1.page.scss'],
   standalone: false,
-  providers:[DatePipe]
+  providers:[DatePipe],
 })
 export class Tab1Page implements OnInit, OnDestroy {
   @ViewChild(IonModal) modal!: IonModal;

@@ -1,19 +1,9 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title> --- </ion-title>
-    <ion-button *ngIf="selectionMode" 
-            (click)="selectionMode = false; 
-            selectedItems.clear()">
-            <ion-icon slot="icon-only" name="chevron-back"></ion-icon>
-    </ion-button>
-    <ion-button *ngIf="selectionMode" 
-            (click)="deleteItems(); 
-            selectedItems.clear()">
-            <ion-icon slot="icon-only" name="trash" color="danger"></ion-icon>
-    </ion-button>
-    <ion-icon *ngIf="selectionMode" slot="icon-only" name="trash" color="danger"></ion-icon>
-  </ion-toolbar>
-</ion-header>
+
+<app-header
+  [selectionMode]="selectionMode"
+  (selectionModeChange)="selectionMode = $event"
+  (deleteSelected)="deleteItems()"
+></app-header>
 
 <ion-content [fullscreen]="true">
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
@@ -47,7 +37,7 @@
             (mousedown)="onPressStart($event, item)"
             (mouseup)="onPressEnd()"
             (mouseleave)="onPressEnd()"
-            >
+          >
             <ion-checkbox
               slot="start"
               *ngIf="selectionMode"
